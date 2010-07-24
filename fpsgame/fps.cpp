@@ -651,8 +651,8 @@ namespace game
         return false;
     }
 
-    VARP(colorclans, 0, 0, 1);
-    VARP(colorclans_offset, 0, 0, INT_MAX >> 3);
+    VARP(colorclans, 0, 1, 1);
+    VARP(colorclans_offset, 0, 5, INT_MAX >> 3);
     int create_colored_name(const char *name, char *t_clan, char *t_name)
     {
         int indices[4] = {0};
@@ -1113,6 +1113,65 @@ namespace game
     void loadconfigs()
     {
         execfile("auth.cfg", false);
+    }
+    
+    void renderdetailedhud(int w, int h, int fonth, int curfps)
+    {
+        int pj = 0, c = 0;
+        loopv(players)
+        if(players[i]->plag != 0 && players[i]->state != CS_SPECTATOR) {
+            pj += players[i]->plag;
+            c ++;
+        }
+        char a[32] = "", b[32], d[256], e[256] = "", f[256];
+        if(showping)
+        {
+            if(showpj)
+                sprintf(a, "ping: %d,%d ", player1->ping, c ? pj / c : 0);
+            else
+                sprintf(a, "ping: %d ", player1->ping);
+        }
+        else if(showpj)
+            sprintf(a, "pj: %d ", c ? pj / c : 0);
+        
+        {
+            int secs = max(maplimit-lastmillis, 0)/1000, mins = secs/60;
+            secs %= 60;
+            if(!(!mins && secs && secs < 30 && lastmillis % 1000 >= 500))
+            {
+                const char *color = mins ? (secs ? "" : "\f1") : "\f3";
+                sprintf(b, "\fs%s%d:%-2.2d\fr", color, mins, secs);
+            }
+            else
+                sprintf(b, "   ");
+        }
+        {
+            vector<int> v;
+            int n = getscores(v);
+            if(v.length())
+            {
+                sprintf(e, " score: ");
+                int f = 0;
+                loopv(v)
+                f += sprintf(e+8+f, "%s\fs%s%d\fr", f ? "-" : "", n == i ? "\f1" : "", v[i]);
+            }
+        }
+        fpsent *p = hudplayer();
+        int rank = 0;
+        {
+            vector<fpsent *> bestplayers;
+            getsortedplayers(bestplayers);
+            rank = bestplayers.find(p)+1;
+        }
+        
+        int mw, mh;
+        sprintf(d, "frags: %d deaths: %d acc: %d%% rank: %d fps: %d", p->frags, p->deaths, p->totaldamage*100/max(p->totalshots, 1), rank, curfps);
+        text_bounds(d, mw, mh);
+        draw_text(d, w*3-mw-fonth, h*3-fonth*3/2);
+        
+        sprintf(f, "flags: %d cn: %d %stime: %s%s", p->flags, p->clientnum, a, b, e);
+        text_bounds(f, mw, mh);
+        draw_text(f, w*3-mw-fonth, h*3-fonth*5/2);
     }
 }
 

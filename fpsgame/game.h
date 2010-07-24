@@ -666,6 +666,8 @@ namespace game
     extern int following;
     extern int smoothmove, smoothdist;
 
+    extern int showpj, showping;
+    
     extern bool clientoption(const char *arg);
     extern fpsent *getclient(int cn);
     extern fpsent *newclient(int cn);
@@ -757,6 +759,8 @@ namespace game
     extern void showscores(bool on);
     extern void getbestplayers(vector<fpsent *> &best);
     extern void getbestteams(vector<const char *> &best);
+    extern void getsortedplayers(vector<fpsent *> &best);
+    extern int getscores(vector<int> &v);
 
     // render
     struct playermodelinfo
