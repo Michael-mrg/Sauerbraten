@@ -1264,6 +1264,7 @@ namespace game
                 }
                 if(!victim) break;
                 killed(victim, actor);
+                if(actor!=victim && isteam(actor->team, victim->team)) actor->teamkills++;
                 break;
             }
 

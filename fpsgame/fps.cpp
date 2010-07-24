@@ -15,6 +15,17 @@ namespace game
 
     bool clientoption(const char *arg) { return false; }
 
+    void stats(const char *who)
+    {
+        int i = who[0] ? parseplayer(who) : -1;
+        fpsent *d = i == -1 ? player1 : getclient(i);
+        if(m_ctf)
+            conoutf("%s \fs\f1(%d)\fr Flags: \fs\f4%d\fr Frags: \fs\f1%d\fr Deaths: \fs\f2%d\fr Accuracy: \fs\f0%.1f%%\fr Teamkills: \fs\f3%d\fr", colorname(d), d->clientnum, d->flags, d->frags, d->deaths, d->totaldamage*100.0/max(d->totalshots, 1), d->teamkills);
+        else
+            conoutf("%s \fs\f1(%d)\fr Frags: \fs\f1%d\fr Deaths: \fs\f2%d\fr Accuracy: \fs\f0%.1f%%\fr Teamkills: \fs\f3%d\fr", colorname(d), d->clientnum, d->frags, d->deaths, d->totaldamage*100.0/max(d->totalshots, 1), d->teamkills);
+    }
+    COMMAND(stats, "s");
+    
     void taunt()
     {
         if(player1->state!=CS_ALIVE || player1->physstate<PHYS_SLOPE) return;
@@ -1118,12 +1129,13 @@ namespace game
     void renderdetailedhud(int w, int h, int fonth, int curfps)
     {
         int pj = 0, c = 0;
+        fpsent *p = hudplayer();
         loopv(players)
         if(players[i]->plag != 0 && players[i]->state != CS_SPECTATOR) {
             pj += players[i]->plag;
             c ++;
         }
-        char a[32] = "", b[32], d[256], e[256] = "", f[256];
+        char a[32] = "", b[32], d[256], e[256] = "", f[256], g[32] ="";
         if(showping)
         {
             if(showpj)
@@ -1148,15 +1160,20 @@ namespace game
         {
             vector<int> v;
             int n = getscores(v);
+            int f = 0;
+            if(m_ctf)
+                f += sprintf(e, " flags: %d", p->flags);
             if(v.length())
             {
-                sprintf(e, " score: ");
-                int f = 0;
+                f += sprintf(e+f, " score: ");
+                int z = 0;
                 loopv(v)
-                f += sprintf(e+8+f, "%s\fs%s%d\fr", f ? "-" : "", n == i ? "\f1" : "", v[i]);
+                {
+                    f += sprintf(e+f, "%s\fs%s%d\fr", z ? "-" : "", n == i ? "\f1" : "", v[i]);
+                    z = 1;
+                }
             }
         }
-        fpsent *p = hudplayer();
         int rank = 0;
         {
             vector<fpsent *> bestplayers;
@@ -1169,7 +1186,7 @@ namespace game
         text_bounds(d, mw, mh);
         draw_text(d, w*3-mw-fonth, h*3-fonth*3/2);
         
-        sprintf(f, "flags: %d cn: %d %stime: %s%s", p->flags, p->clientnum, a, b, e);
+        sprintf(f, "cn: %d %stime: %s%s", p->clientnum, a, b, e);
         text_bounds(f, mw, mh);
         draw_text(f, w*3-mw-fonth, h*3-fonth*5/2);
     }
