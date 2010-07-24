@@ -715,8 +715,8 @@ namespace game
            indices[0] > len || indices[1] > len || indices[2] > len || indices[3] > len ||
            indices[1] <= indices[0] || indices[3] <= indices[2])
             return -1;
-        memset(t_clan, '\0', sizeof(t_clan));
-        memset(t_name, '\0', sizeof(t_name));
+        memset(t_clan, '\0', 260);
+        memset(t_name, '\0', 260);
         strncpy(t_clan, name+indices[0], indices[1]-indices[0]);
         strncpy(t_name, name+indices[2], indices[3]-indices[2]);
         
@@ -736,6 +736,7 @@ namespace game
         static string cname[3];
         static int cidx = 0;
         cidx = (cidx + 1) % 3;
+        memset(cname[cidx], '\0', 260);
         
         if(d->name_hash != hash || strcmp(name, d->name_cache))
         {
@@ -760,6 +761,7 @@ namespace game
             {
                 strcpy(d->name_cache, name);
                 d->name_hash = hash;
+                memset(d->formatted_name, '\0', 260);
                 strcpy(d->formatted_name, formatted_name);
             }
             
