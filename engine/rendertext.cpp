@@ -159,6 +159,20 @@ static void text_color(char c, char *stack, int size, int &sp, bvec color, int a
             case '6': color = bvec(255, 128,   0); break;   // orange
             case '7': color = bvec(255, 255, 255); break;   // white
             // provided color: everything else
+                
+            case 'A': color = bvec(255, 211,   0); break; 
+            case 'B': color = bvec(120, 126, 183); break;
+            case 'C': color = bvec(117, 149,  54); break;
+            case 'D': color = bvec(107, 135, 117); break;
+            case 'E': color = bvec(245, 245, 179); break;
+            case 'F': color = bvec(251,   0,  13); break;
+            case 'G': color = bvec( 97, 215, 164); break;
+            case 'H': color = bvec( 83,  40, 129); break;
+            case 'I': color = bvec(240, 139, 203); break;
+            case 'J': color = bvec(220, 150,  48); break;
+            case 'K': color = bvec(103, 159, 210); break;
+            case 'L': color = bvec(153, 161, 222); break;
+            case 'M': color = bvec(254, 252, 255); break;
         }
         glColor4ub(color.x, color.y, color.z, a);
     } 

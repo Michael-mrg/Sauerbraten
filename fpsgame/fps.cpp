@@ -756,6 +756,7 @@ namespace game
         }
         else
             strcpy(cname[cidx], d->formatted_name[0] ? d->formatted_name : name);
+        return cname[cidx];
     }
 
     void suicide(physent *d)
