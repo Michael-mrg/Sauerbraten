@@ -13,6 +13,7 @@ namespace game
     VARP(showconnecting, 0, 0, 1);
     
     VARP(scoreboardcolumns, 0, 1, 1);
+    VARP(showfrags, 0, 1, 1);
 
     static int playersort(const fpsent **a, const fpsent **b)
     {
@@ -212,13 +213,22 @@ namespace game
                 g.pushlist(); // horizontal
             }
 
-            if(!cmode || !cmode->hidefrags())
+            if(showfrags || !cmode || !cmode->hidefrags())
             { 
                 g.pushlist();
-                g.strut(7);
-                g.text("frags", fgcolor);
+                g.strut(showfrags ? 3 : 7);
+                g.text("K", fgcolor);
                 loopscoregroup(o, g.textf("%d", 0xFFFFDD, NULL, o->frags));
                 g.poplist();
+                
+                if(showfrags)
+                {
+                    g.pushlist();
+                    g.strut(5);
+                    g.text("D", fgcolor);
+                    loopscoregroup(o, g.textf("%d", 0xFFFFDD, NULL, o->deaths));
+                    g.poplist();
+                }
             }
 
             if(multiplayer(false) || demoplayback)
