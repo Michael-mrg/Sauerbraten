@@ -224,10 +224,19 @@ namespace game
                 if(showfrags)
                 {
                     g.pushlist();
-                    g.strut(5);
+                    g.strut(3);
                     g.text("D", fgcolor);
                     loopscoregroup(o, g.textf("%d", 0xFFFFDD, NULL, o->deaths));
                     g.poplist();
+                    
+                    if(m_ctf)
+                    {
+                        g.pushlist();
+                        g.strut(4);
+                        g.text("F", fgcolor);
+                        loopscoregroup(o, g.textf("%d", 0xFFFFDD, NULL, o->flags));
+                        g.poplist();
+                    }
                 }
             }
 
@@ -236,7 +245,7 @@ namespace game
                 if(showpj)
                 {
                     g.pushlist();
-                    g.strut(6);
+                    g.strut(3);
                     g.text("pj", fgcolor);
                     loopscoregroup(o,
                     {
@@ -250,7 +259,7 @@ namespace game
                 {
                     g.pushlist();
                     g.text("ping", fgcolor);
-                    g.strut(6);
+                    g.strut(4);
                     loopscoregroup(o, 
                     {
                         fpsent *p = o->ownernum >= 0 ? getclient(o->ownernum) : o;
