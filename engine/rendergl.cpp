@@ -415,7 +415,7 @@ void gl_checkextensions()
         if(osversion>=0x1050) // fixed in 1055 for some hardware.. but not all..
         {
             apple_ff_bug = 1;
-            conoutf(CON_WARN, "WARNING: Using Leopard ARB_position_invariant bug workaround. (use \"/apple_ff_bug 0\" to disable if unnecessary)");
+                //            conoutf(CON_WARN, "WARNING: Using Leopard ARB_position_invariant bug workaround. (use \"/apple_ff_bug 0\" to disable if unnecessary)");
         }
 #endif
     }
@@ -460,7 +460,7 @@ void gl_checkextensions()
             //if(osversion<0x1050) ??
             if(hasVP && hasFP) apple_glsldepth_bug = 1;
 #endif
-            if(apple_glsldepth_bug) conoutf(CON_WARN, "WARNING: Using Apple GLSL depth bug workaround. (use \"/apple_glsldepth_bug 0\" to disable if unnecessary");
+                //            if(apple_glsldepth_bug) conoutf(CON_WARN, "WARNING: Using Apple GLSL depth bug workaround. (use \"/apple_glsldepth_bug 0\" to disable if unnecessary");
         }
     }
     
