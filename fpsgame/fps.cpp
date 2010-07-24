@@ -650,15 +650,111 @@ namespace game
         return false;
     }
 
+    VARP(colorclans, 0, 0, 1);
+    VARP(colorclans_offset, 0, 0, INT_MAX >> 3);
+    int create_colored_name(const char *name, char *t_clan, char *t_name)
+    {
+        int indices[4] = {0};
+        int len = strlen(name);
+        const char *startchars = "[|{}=<(/\\";
+        const char *endchars = "]|{}=>):/\\.";
+        
+        while(strchr(startchars, name[indices[0]]))
+            indices[0] ++;
+        if(!indices[0]) // name|TAG|
+        {
+            int t = len - 1;
+            while(t != -1 && strchr(endchars, name[t]))
+                t --;
+            if(t != len - 1)
+            {
+                indices[1] = t + 1;
+                while(t != -1 && !strchr(startchars, name[t]))
+                    t --;
+                if(t < 1)
+                    return -1;
+                indices[0] = t + 1; indices[2] = 0; indices[3] = indices[0] - 1;
+                while(strchr(startchars, name[indices[3]-1]))
+                    indices[3] --;
+            }
+        }
+        if(!indices[1]) // |TAG|name
+        {
+            indices[1] = indices[0];
+            while(!strchr(endchars, name[indices[1]]))
+                indices[1] ++;
+            indices[2] = indices[1];
+            while(strchr(endchars, name[indices[2]]))
+                indices[2] ++;
+            indices[3] = len;
+        }
+        if(indices[1] == len)
+            indices[1] = indices[2] = 0;
+        
+        // If one of the tag separators is a bound, and clan_name > real_name, swap.
+        if(indices[3] == len && !indices[0] && len < indices[1]+indices[2])
+        {
+            int a = indices[0], b = indices[1];
+            indices[0] = indices[2], indices[1] = indices[3];
+            indices[2] = a, indices[3] = b;
+        }
+        
+        if(indices[0] < 0 || indices[1] < 0 || indices[2] < 0 || indices[3] < 0 ||
+           indices[0] > len || indices[1] > len || indices[2] > len || indices[3] > len ||
+           indices[1] <= indices[0] || indices[3] <= indices[2])
+            return -1;
+        memset(t_clan, '\0', sizeof(t_clan));
+        memset(t_name, '\0', sizeof(t_name));
+        strncpy(t_clan, name+indices[0], indices[1]-indices[0]);
+        strncpy(t_name, name+indices[2], indices[3]-indices[2]);
+        
+        int c = 0;
+        for(int i = 1; i < strlen(t_clan); i ++)
+            c += (t_clan[i] + colorclans_offset) ^ t_clan[i-1];
+        return 'A' + (c % 13);
+    }
+    
     const char *colorname(fpsent *d, const char *name, const char *prefix)
     {
         if(!name) name = d->name;
-        if(name[0] && !duplicatename(d, name) && d->aitype == AI_NONE) return name;
+        bool is_bot = d->aitype != AI_NONE;
+        bool duplicate = duplicatename(d, name);
+        int hash = (colorclans_offset << 3) | (is_bot << 2) | (duplicate << 1) | colorclans;
+        
         static string cname[3];
         static int cidx = 0;
-        cidx = (cidx+1)%3;
-        formatstring(cname[cidx])(d->aitype == AI_NONE ? "%s%s \fs\f5(%d)\fr" : "%s%s \fs\f5[%d]\fr", prefix, name, d->clientnum);
-        return cname[cidx];
+        cidx = (cidx + 1) % 3;
+        
+        if(d->name_hash != hash || strcmp(name, d->name_cache))
+        {
+            string formatted_name = {0};
+            if(colorclans)
+            {
+                string t_name, t_clan;
+                int color = create_colored_name(name, t_clan, t_name);
+                if(color != -1)
+                    formatstring(formatted_name)("\fs\f%c%s\fr %s", color, t_clan, t_name);
+            }
+            if(!formatted_name[0])
+                strcpy(formatted_name, name);
+            
+            if(is_bot || duplicate)
+            {
+                string t;
+                formatstring(t)(is_bot ? " \fs\f5[%d]\fr" : " \fs\f5(%d)\fr", d->clientnum);
+                strcat(formatted_name, t);
+            }
+            if(name == d->name)
+            {
+                strcpy(d->name_cache, name);
+                d->name_hash = hash;
+                strcpy(d->formatted_name, formatted_name);
+            }
+            
+            strcpy(cname[cidx], formatted_name[0] ? formatted_name : name);
+        }
+        else
+            strcpy(cname[cidx], d->formatted_name[0] ? d->formatted_name : name);
     }
 
     void suicide(physent *d)
