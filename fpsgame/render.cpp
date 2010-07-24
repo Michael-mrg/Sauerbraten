@@ -11,6 +11,7 @@ namespace game
     VARFP(playermodel, 0, 0, 4, changedplayermodel());
     VARP(forceplayermodels, 0, 0, 1);
     VARP(allplayermodels, 0, 0, 1);
+    VARP(distantnametags, 0, 3, 5);
 
     vector<fpsent *> ragdolls;
 
@@ -216,7 +217,13 @@ namespace game
             renderplayer(d, getplayermodelinfo(d), team, 1, mainpass);
             copystring(d->info, colorname(d));
             if(d->maxhealth>100) { defformatstring(sn)(" +%d", d->maxhealth-100); concatstring(d->info, sn); }
-            if(d->state!=CS_DEAD) particle_text(d->abovehead(), d->info, PART_TEXT, 1, team ? (team==1 ? 0x6496FF : 0xFF4B19) : 0x1EC850, 2.0f);
+            if(d->state!=CS_DEAD) 
+            {
+                const vec s = d->abovehead();
+                float v[] = {HUGE_VAL, 512.0f, 256.0f, 192.0f, 128.0f, 64.0f};
+                float r = distantnametags ? camera1->o.dist(s)/v[distantnametags] : 0.0f;
+                particle_text(d->abovehead(), d->info, PART_TEXT, 1, team ? (team==1 ? 0x6496FF : 0xFF4B19) : 0x1EC850, 2.0f + r);
+            }
         }
         loopv(ragdolls)
         {
