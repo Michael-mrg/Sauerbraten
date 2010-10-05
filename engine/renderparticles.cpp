@@ -1125,6 +1125,28 @@ void particle_trail(int type, int fade, const vec &s, const vec &e, int color, f
     }
 }
 
+void particle_trail_spin(int type, int fade, const vec &s, const vec &e, int color, float size, int gravity, float radius, float period)
+{
+    if(!canaddparticles()) return;
+    vec v;
+    float d = e.dist(s, v);
+    int steps = clamp(int(d*5), 1, maxtrail*4);
+    v.div(steps);
+    vec p = s;
+    vec q;
+    q.cross(v, vec(1,0,0));
+    if(rnd(2) == 1)
+	period *= -1;
+    loopi(steps)
+    {
+        p.add(v);
+	q.rotate(period, v);
+	vec z = vec(p).add(vec(q).normalize().mul(radius*0.75*pow(.85-.85*i/steps, 2)));
+	int r = 0x22 * sinf(i*period/18);
+        newparticle(z, vec(0,0,1), (rnd(fade)+fade)*3.0*(0.1+0.9*i/steps), type, color+(r<<8)+(r<<16), size, gravity);
+    }
+}
+
 VARP(particletext, 0, 1, 1);
 VARP(maxparticletextdistance, 0, 128, 10000);
 
