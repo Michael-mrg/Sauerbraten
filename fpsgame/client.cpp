@@ -332,13 +332,17 @@ namespace game
     {
         if(val)
         {
+            if(player1->state != CS_DEAD)
+                player1->lastpain = lastmillis;
             suicide(player1);
             player1->state = CS_SPECTATOR;
         }
         else if(player1->state == CS_SPECTATOR)
         {
+            int a = player1->lastpain;
             stopfollowing();
             deathstate(player1, true);
+            player1->lastpain = a;
         }
     }
     ICOMMAND(fakespectator, "i", (int *val), fakespectator(*val));
